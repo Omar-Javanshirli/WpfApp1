@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,6 +15,5 @@ namespace WpfApp1
     /// </summary>
     public partial class App : Application
     {
-        public static CareTaker Momento;
     }
 }

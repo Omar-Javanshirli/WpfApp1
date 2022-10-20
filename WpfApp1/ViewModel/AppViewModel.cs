@@ -10,11 +10,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WpfApp1.Command;
 using WpfApp1.Momento;
-
+using Image = System.Windows.Controls.Image;
 namespace WpfApp1.ViewModel
 {
     public class AppViewModel:BaseViewModel
     {
+        public Originator originator { get; set; }
+        public CareTaker careTaker { get; set; }
         public RelayCommand ScreenShootCommand { get; set; }
         public RelayCommand UndoCommand { get; set; }
         public RelayCommand RendoCommand { get; set; }
@@ -28,14 +30,18 @@ namespace WpfApp1.ViewModel
 
         public AppViewModel()
         {
+            originator = new Originator(string.Empty);
+            careTaker = new CareTaker(originator);
             ScreenShot();
+            UndoBtn();
+            RedoBtn();
         }
 
         public void Undo()
         {
             UndoCommand = new RelayCommand((e) =>
               {
-                  var momento = new CareTaker(imagePath);
+                  //var momento = new CareTaker(imagePath);
               });
         }
 
@@ -43,31 +49,69 @@ namespace WpfApp1.ViewModel
         {
             ScreenShootCommand = new RelayCommand((e) =>
             {
-                try
-                {
-                    //Creating a new Bitmap object
-                    Bitmap captureBitmap = new Bitmap(1024, 768, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                    //Bitmap captureBitmap = new Bitmap(int width, int height, PixelFormat);
-                    //Creating a Rectangle object which will
-                    //capture our Current Screen
-                    Rectangle captureRectangle = Screen.AllScreens[0].Bounds;
-                    //Creating a New Graphics Object
-                    Graphics captureGraphics = Graphics.FromImage(captureBitmap);
-                    //Copying Image from The Screen
-                    captureGraphics.CopyFromScreen(captureRectangle.Left, captureRectangle.Top, 0, 0, captureRectangle.Size);
-                    //Saving the Image File (I am here Saving it in My E drive).
-                    captureBitmap.Save(@"C:\Users\stepguest\Desktop\index\Capture.jpg", ImageFormat.Jpeg);
-                    //Displaying the Successfull Result
+                String filename = "ScreenCapture-" + DateTime.Now.ToString("ddMMyyyy-hhmmss") + ".png";
+                Bitmap bm = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
+                Graphics g = Graphics.FromImage(bm);
+                g.CopyFromScreen(0, 0, 0, 0, bm.Size);
+                filename = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + filename;
+                bm.Save(filename);
 
-                    ImagePath = @"C:\Users\stepguest\Desktop\index\Capture.jpg";
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
+                Image finalImage = new Image();
+                BitmapImage logo = new BitmapImage();
+                logo.BeginInit();
+                logo.UriSource = new Uri(filename);
+                logo.EndInit();
+                finalImage.Source = logo;
+                ImagePath = logo.ToString();
+                originator.DoSomething(filename);
+                careTaker.BackUp();
             });
         
         }
 
+        public void RedoBtn()
+        {
+            RendoCommand = new RelayCommand((e) =>
+            {
+                careTaker.Redo();
+                try
+                {
+                    Image finalImage = new Image();
+                    BitmapImage logo = new BitmapImage();
+                    logo.BeginInit();
+                    logo.UriSource = new Uri(careTaker._mementos[careTaker.Index].GetState());
+                    logo.EndInit();
+                    finalImage.Source = logo;
+                    ImagePath= logo.ToString();
+                }
+                catch (Exception)
+                {
+
+                }
+            });
+        }
+
+        public void UndoBtn()
+        {
+            UndoCommand = new RelayCommand((e) =>
+            {
+                careTaker.Undo();
+
+                try
+                {
+                    Image finalImage = new Image();
+                    BitmapImage logo = new BitmapImage();
+                    logo.BeginInit();
+                    logo.UriSource = new Uri(careTaker._mementos[careTaker.Index].GetState());
+                    logo.EndInit();
+                    finalImage.Source = logo;
+                    ImagePath = logo.ToString();
+                }
+                catch (Exception)
+                {
+
+                }
+            });
+        }
     }
 }

@@ -14,26 +14,11 @@ namespace WpfApp1.Momento
         public Originator(string state)
         {
             _state = state;
-            Console.WriteLine("Originator : My Initial state is : " + _state);
         }
 
-        public void DoSomething()
+        public void DoSomething(string filename)
         {
-            Console.WriteLine("Originator : I am doing something important");
-            this._state = this.GenerateRandomString(30);
-        }
-        public string GenerateRandomString(int length = 30)
-        {
-            string allowedSymbols = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            string result = "";
-            while (length > 0)
-            {
-                result += allowedSymbols[new Random().Next(0, allowedSymbols.Length)];
-
-                Thread.Sleep(12);
-                length--;
-            }
-            return result;
+            this._state = filename;
         }
         public IMemento Save()
         {
@@ -51,9 +36,7 @@ namespace WpfApp1.Momento
     }
     public interface IMemento
     {
-        string GetName();
         string GetState();
-        DateTime GetDate();
     }
     public class TextMemento : IMemento
     {
@@ -64,15 +47,6 @@ namespace WpfApp1.Momento
             this._state = state;
             this._date = DateTime.Now;
         }
-        public DateTime GetDate()
-        {
-            return _date;
-        }
-
-        public string GetName()
-        {
-            return $"{_date} / {_state.Substring(0, 9)}";
-        }
 
         public string GetState()
         {
@@ -81,7 +55,7 @@ namespace WpfApp1.Momento
     }
     public class CareTaker
     {
-        private List<IMemento> _mementos = new List<IMemento>();
+        public List<IMemento> _mementos = new List<IMemento>();
         private Originator _originator = null;
 
         public CareTaker(Originator originator)
@@ -95,13 +69,8 @@ namespace WpfApp1.Momento
             {
                 return;
             }
-
-            //var memento = _mementos.Last();
-            //this._mementos.Remove(memento);
             var memento = _mementos[Index];
             Index--;
-            Console.WriteLine("Care Taker :  Restoring state" + memento.GetName());
-
             try
             {
                 _originator.Restore(memento);
@@ -116,26 +85,13 @@ namespace WpfApp1.Momento
         {
             var memento = _mementos[Index];
             Index++;
-            Console.WriteLine("Care Taker :  Restoring state" + memento.GetName());
         }
         public int Index { get; set; } = -1;
         public void BackUp()
         {
-            Console.WriteLine("\nCareTaker Saving Originator state . . . ");
             this._mementos.Add(_originator.Save());
             Index++;
         }
 
-
-        public void ShowHistory()
-        {
-            Console.WriteLine("CareTaker :  Here\'s the list of mementos");
-            foreach (var item in _mementos)
-            {
-                Console.WriteLine(item.GetName()); ;
-            }
-        }
     }
-
- 
 }

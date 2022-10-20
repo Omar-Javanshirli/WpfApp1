@@ -12,20 +12,19 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Column="1">
-            <StackPanel>
-                <Image Source="{Binding ImagePath,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
-                <Canvas>
-                    <Button Canvas.Top="400" Command="{Binding UndoCommand}">
-                        <Image Source="/Image/left.png" Width="20" />
-                    </Button>
-                    <Button Canvas.Top="400" Canvas.Left="60" Command="{Binding RendoCommand}">
-                        <Image Source="/Image/right.png" Width="20" />
-                    </Button>
-                </Canvas>
+        <StackPanel Grid.Column="1">
+            <StackPanel Width="300" Height="300">
+                <Image Source="{Binding ImagePath,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" x:Name="ScreenImage" Width="300" Height="300"/>
             </StackPanel>
-            
-        </Border>
+            <Canvas Width="300" Height="100">
+                <Button  Command="{Binding UndoCommand}" Panel.ZIndex="1">
+                    <Image Source="/Image/left.png" Width="20" />
+                </Button>
+                <Button  Canvas.Left="60" Command="{Binding RendoCommand}">
+                    <Image Source="/Image/right.png" Width="20" />
+                </Button>
+            </Canvas>
+        </StackPanel>
         <Button Background="DeepPink" Content="Take Screen" Command="{Binding ScreenShootCommand}"/>
     </Grid>
 </Window>
